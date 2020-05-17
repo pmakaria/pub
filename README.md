@@ -1,4 +1,6 @@
 # pub
-Public Repository
+## Public Repository
 
-Place to publish documents, exercises, presentations etc
+### Place to publish documents, exercises, presentations etc
+
+
