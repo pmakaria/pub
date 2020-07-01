@@ -27,7 +27,7 @@ This is R code based on the [R tutorial](http://www.r-tutor.com/r-introduction) 
 * [Non Parametric Methods](https://github.com/pmakaria/pub/blob/master/Statistics101-R/11.Non%20Parametric%20Methods.r)
 
 ### Time Series Analysis
-This is a Jupyter Notebook (Python), with a time series analysis on weather data, aiming to forecast the monthly average temperature, 30 months in the future.
+This is a [Jupyter Notebook in Python](https://github.com/pmakaria/pub/blob/master/TimeSeriesAnalysis/Python/Copy_of_TimeSeriesAnalysis_WeatherData.ipynb), with a time series analysis on weather data, aiming to forecast the monthly average temperature, 30 months in the future.
 
 
 ### Job Vacancies Analysis.pptx
