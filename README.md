@@ -26,7 +26,7 @@ This is R code based on the [R tutorial](http://www.r-tutor.com/r-introduction) 
 * [Analysis of Variance - ANOVA](https://github.com/pmakaria/pub/blob/master/Statistics101-R/10.Analysis%20of%20Variance.r)
 * [Non Parametric Methods](https://github.com/pmakaria/pub/blob/master/Statistics101-R/11.Non%20Parametric%20Methods.r)
 
-###Text Analytics using R - Corpus Tools
+### Text Analytics using R - Corpus Tools
 This is a [Jupyter Notebook in R] (https://github.com/pmakaria/pub/blob/master/TextAnalytics/notebooks/JobVacanciesAnalysis.ipynb), that uses the "CorpusTools" package to analyse job postings. The result of the analysis is graphs of the Soft skills and Technologies that are most in demand.
 
 ### Time Series Analysis
