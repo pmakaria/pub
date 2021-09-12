@@ -30,7 +30,7 @@ This is R code based on the [R tutorial](http://www.r-tutor.com/r-introduction) 
 This is a [Jupyter Notebook in R](https://github.com/pmakaria/pub/blob/master/TextAnalytics/notebooks/JobVacanciesAnalysis.ipynb), that uses the "CorpusTools" package to analyse job postings. The result of the analysis is graphs of the Soft skills and Technologies that are most in demand.
 
 ### Time Series Analysis
-This is a [Jupyter Notebook in Python](https://github.com/pmakaria/pub/blob/master/TimeSeriesAnalysis/Python/Copy_of_TimeSeriesAnalysis_WeatherData.ipynb), with a time series analysis on weather data, aiming to forecast the monthly average temperature, 30 months in the future.
+This is a [Jupyter Notebook in Python](https://github.com/pmakaria/pub/blob/master/TimeSeriesAnalysis/Python/Copy_of_TimeSeriesAnalysis_WeatherData.ipynb),with a time series analysis on weather data,aiming to forecast the monthly average temperature, 30 months in the future.
 
 
 ### Job Vacancies Analysis.pptx
