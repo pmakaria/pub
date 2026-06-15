@@ -1,0 +1,6 @@
+{
+  "name": "CPU Temp",
+  "description": "Measures phone CPU temperature with historical logs, custom update frequency, and dual dark and light themes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
