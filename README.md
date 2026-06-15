@@ -37,5 +37,8 @@ This is a [Jupyter Notebook in Python](https://github.com/pmakaria/pub/blob/mast
 
 This is my [text analytics exercise](https://github.com/pmakaria/pub/blob/master/Job%20Vacancies%20Analysis.pptx), parsing a number of Job Advertisements and analyzing the required skills per job role, relevance of job title vs job description etc.
 
+### CPU temperature
+
+An android [app](https://github.com/pmakaria/pub/blob/master/cpu-temp/), vibe coded in Google AI studio, which monitors the temperature of your Android mobile.
 
 
