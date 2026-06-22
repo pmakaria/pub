@@ -8,5 +8,6 @@ data class TemperatureReading(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val temperature: Float,
     val timestamp: Long = System.currentTimeMillis(),
-    val source: String
+    val source: String,
+    val sensorType: String = "cpu"
 )

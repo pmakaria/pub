@@ -8,8 +8,8 @@ interface TemperatureDao {
     @Query("SELECT * FROM temperature_readings ORDER BY timestamp DESC")
     fun getAllReadings(): Flow<List<TemperatureReading>>
 
-    @Query("SELECT * FROM temperature_readings WHERE timestamp >= :thresholdTime ORDER BY timestamp DESC")
-    fun getReadingsPast24Hours(thresholdTime: Long): Flow<List<TemperatureReading>>
+    @Query("SELECT * FROM temperature_readings WHERE sensorType = :sensorType AND timestamp >= :thresholdTime ORDER BY timestamp DESC")
+    fun getReadingsPast24Hours(sensorType: String, thresholdTime: Long): Flow<List<TemperatureReading>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReading(reading: TemperatureReading)

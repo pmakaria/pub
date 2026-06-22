@@ -12,10 +12,16 @@ class PreferencesManager(context: Context) {
         const val KEY_THEME = "ui_theme" // "system", "dark", "light"
         const val KEY_TEMP_UNIT = "temp_unit" // "celsius", "fahrenheit"
         const val KEY_WARNING_THRESHOLD = "warning_threshold" // Float: target hot temp limit (e.g. 42.0)
+        const val KEY_SENSOR_TYPE = "sensor_type" // "cpu", "battery"
 
         const val DEFAULT_FREQUENCY = 5 // 5 seconds
         const val DEFAULT_WARNING_THRESHOLD = 42.0f
+        const val DEFAULT_SENSOR_TYPE = "cpu"
     }
+
+    var sensorType: String
+        get() = prefs.getString(KEY_SENSOR_TYPE, DEFAULT_SENSOR_TYPE) ?: DEFAULT_SENSOR_TYPE
+        set(value) = prefs.edit().putString(KEY_SENSOR_TYPE, value).apply()
 
     var updateFrequency: Int
         get() = prefs.getInt(KEY_UPDATE_FREQUENCY, DEFAULT_FREQUENCY)

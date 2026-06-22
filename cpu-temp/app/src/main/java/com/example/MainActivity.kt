@@ -91,6 +91,7 @@ fun CpuTempDashboardScreen(
     val warningThreshold by viewModel.warningThreshold.collectAsStateWithLifecycle()
     val tempUnit by viewModel.tempUnit.collectAsStateWithLifecycle()
     val themeSetting by viewModel.themeSetting.collectAsStateWithLifecycle()
+    val sensorType by viewModel.sensorType.collectAsStateWithLifecycle()
 
     var showSettings by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
@@ -135,14 +136,14 @@ fun CpuTempDashboardScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ThermostatIcon(tint = brandPrimary)
+                    DeviceSensorIcon(sensorType = sensorType, tint = brandPrimary, modifier = Modifier.size(32.dp))
                     Column {
                         Text(
-                            text = "CPU Monitor",
+                            text = "Device Temp Monitor",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                             color = primaryText
                         )
                         Row(
@@ -255,7 +256,49 @@ fun CpuTempDashboardScreen(
                             letterSpacing = 1.sp
                         )
 
-                        // 1. Polling frequency choose
+                        // 1. Active Sensor Source Selector
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(
+                                text = "Active Temperature Sensor",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = textColor
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                val sensors = listOf(
+                                    "cpu" to "CPU",
+                                    "battery" to "Battery"
+                                )
+                                sensors.forEach { (type, label) ->
+                                    val isSelected = sensorType == type
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(
+                                                if (isSelected) brandPrimary else {
+                                                    if (isDark) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.04f)
+                                                }
+                                            )
+                                            .clickable { viewModel.setSensorType(type) }
+                                            .padding(vertical = 8.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            color = if (isSelected) textOnBrand else textColor
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // 2. Polling frequency choose
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(
                                 text = "Polling Update Frequency",
@@ -531,14 +574,20 @@ fun CpuTempDashboardScreen(
                                         verticalArrangement = Arrangement.spacedBy(16.dp),
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Text(
-                                            text = "CURRENT TEMPERATURE",
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = brandPrimary,
-                                            letterSpacing = 1.4.sp,
-                                            textAlign = TextAlign.Center
-                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            DeviceSensorIcon(sensorType = sensorType, tint = brandPrimary, modifier = Modifier.size(16.dp))
+                                            Text(
+                                                text = if (sensorType == "battery") "CURRENT BATTERY TEMPERATURE" else "CURRENT CPU TEMPERATURE",
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = brandPrimary,
+                                                letterSpacing = 1.4.sp,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
 
                                         // RADIAL ARC TRACK GAUGE
                                         Box(
@@ -710,13 +759,13 @@ fun CpuTempDashboardScreen(
                                 ) {
                                     Column {
                                         Text(
-                                            text = "Core Thermals Historigram",
+                                            text = if (sensorType == "battery") "Battery Thermals History" else "CPU Thermals History",
                                             fontSize = 15.sp,
-                                            fontWeight = FontWeight.Medium,
+                                            fontWeight = FontWeight.Bold,
                                             color = primaryText
                                         )
                                         Text(
-                                            text = "System log points over the past 24H",
+                                            text = if (sensorType == "battery") "Battery logs recorded over the past 24H" else "Processor core logs recorded over the past 24H",
                                             fontSize = 11.sp,
                                             color = secondaryText
                                         )
@@ -1002,7 +1051,11 @@ fun CpuTempDashboardScreen(
                                         modifier = Modifier.size(24.dp)
                                     )
                                     Text(
-                                        text = "Pro Tip: Keeping CPU temperatures beneath ${warningThreshold.toInt()}°C prevents chip throttling and prolongs battery lifespan efficiency.",
+                                        text = if (sensorType == "battery") {
+                                            "Pro Tip: Keeping Battery temperatures beneath ${warningThreshold.toInt()}°C avoids excessive heat stress, slows long-term battery degradation, and ensures high safety margins."
+                                        } else {
+                                            "Pro Tip: Keeping CPU temperatures beneath ${warningThreshold.toInt()}°C prevents chip throttling and prolongs battery lifespan efficiency."
+                                        },
                                         fontSize = 12.sp,
                                         color = brandPrimary,
                                         fontWeight = FontWeight.Medium
@@ -1287,6 +1340,112 @@ fun TemperatureTrendChart(
 }
 
 @Composable
+fun CpuChipIcon(
+    modifier: Modifier = Modifier,
+    tint: Color
+) {
+    Canvas(modifier = modifier.size(32.dp)) {
+        val w = size.width
+        val h = size.height
+        val margin = w * 0.25f
+        
+        // Draw the core chip body
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(margin, margin),
+            size = Size(w - 2 * margin, h - 2 * margin),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx(), 4.dp.toPx()),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx())
+        )
+        // Fill core slightly
+        drawRoundRect(
+            color = tint.copy(alpha = 0.3f),
+            topLeft = Offset(margin + 3.dp.toPx(), margin + 3.dp.toPx()),
+            size = Size(w - 2 * margin - 6.dp.toPx(), h - 2 * margin - 6.dp.toPx()),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
+        
+        // Pins on top, bottom, left, right
+        val pinCount = 3
+        val pinSpacing = (w - 2 * margin) / (pinCount + 1)
+        for (i in 1..pinCount) {
+            val px = margin + i * pinSpacing
+            // Top pins
+            drawLine(color = tint, start = Offset(px, margin), end = Offset(px, margin - 4.dp.toPx()), strokeWidth = 2.dp.toPx())
+            // Bottom pins
+            drawLine(color = tint, start = Offset(px, h - margin), end = Offset(px, h - margin + 4.dp.toPx()), strokeWidth = 2.dp.toPx())
+            // Left pins
+            drawLine(color = tint, start = Offset(margin, px), end = Offset(margin - 4.dp.toPx(), px), strokeWidth = 2.dp.toPx())
+            // Right pins
+            drawLine(color = tint, start = Offset(w - margin, px), end = Offset(w - margin + 4.dp.toPx(), px), strokeWidth = 2.dp.toPx())
+        }
+    }
+}
+
+@Composable
+fun BatteryIcon(
+    modifier: Modifier = Modifier,
+    tint: Color
+) {
+    Canvas(modifier = modifier.size(32.dp)) {
+        val w = size.width
+        val h = size.height
+        
+        val bodyWidth = w * 0.45f
+        val bodyHeight = h * 0.65f
+        val bodyLeft = (w - bodyWidth) / 2f
+        val bodyTop = (h - bodyHeight) / 2f + 2.dp.toPx()
+        
+        // Draw battery main outer body
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(bodyLeft, bodyTop),
+            size = Size(bodyWidth, bodyHeight),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx(), 3.dp.toPx()),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx())
+        )
+        
+        // Draw anode bump on top
+        val bumpWidth = bodyWidth * 0.45f
+        val bumpHeight = 3.dp.toPx()
+        val bumpLeft = bodyLeft + (bodyWidth - bumpWidth) / 2f
+        val bumpTop = bodyTop - bumpHeight
+        
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(bumpLeft, bumpTop),
+            size = Size(bumpWidth, bumpHeight),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(1.dp.toPx(), 1.dp.toPx())
+        )
+        
+        // Fill battery with some charge level inside
+        val fillPadding = 3.dp.toPx()
+        val fillWidth = bodyWidth - 2 * fillPadding
+        val fillHeight = bodyHeight - 2 * fillPadding
+        
+        drawRoundRect(
+            color = tint.copy(alpha = 0.6f),
+            topLeft = Offset(bodyLeft + fillPadding, bodyTop + fillPadding),
+            size = Size(fillWidth, fillHeight),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(1.dp.toPx(), 1.dp.toPx())
+        )
+    }
+}
+
+@Composable
+fun DeviceSensorIcon(
+    sensorType: String,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    if (sensorType == "battery") {
+        BatteryIcon(modifier = modifier, tint = tint)
+    } else {
+        CpuChipIcon(modifier = modifier, tint = tint)
+    }
+}
+
+@Composable
 fun ThermostatIcon(
     modifier: Modifier = Modifier,
     tint: Color
@@ -1392,7 +1551,7 @@ fun HistoryLogItem(
                     color = if (isDark) Color.White else Color(0xFF1C1B1F)
                 )
                 Text(
-                     text = record.source,
+                     text = "[${record.sensorType.uppercase(Locale.ROOT)}] ${record.source}",
                      fontSize = 11.sp,
                      color = if (isDark) Color(0xFFCAC4D0) else Color(0xFF49454F)
                 )

@@ -34,6 +34,9 @@ class CpuTempViewModel(application: Application) : AndroidViewModel(application)
     private val _warningThreshold = MutableStateFlow(prefsManager.warningThreshold)
     val warningThreshold = _warningThreshold.asStateFlow()
 
+    private val _sensorType = MutableStateFlow(prefsManager.sensorType)
+    val sensorType = _sensorType.asStateFlow()
+
     // Active physical reading
     private val _currentReading = MutableStateFlow<TempResult?>(null)
     val currentReading = _currentReading.asStateFlow()
@@ -42,15 +45,20 @@ class CpuTempViewModel(application: Application) : AndroidViewModel(application)
     private var pollJob: Job? = null
 
     // Past 24 hours readings from DB
-    val readingsPast24Hours: StateFlow<List<TemperatureReading>> = flow {
-        while (true) {
-            val threshold = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
-            emit(threshold)
-            // Recalculate 24 hours time threshold every 10 seconds to slide the window forward
-            delay(10000)
-        }
-    }.flatMapLatest { threshold ->
-        repository.getReadingsPast24Hours(threshold)
+    val readingsPast24Hours: StateFlow<List<TemperatureReading>> = combine(
+        flow {
+            while (true) {
+                val threshold = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
+                emit(threshold)
+                // Recalculate 24 hours time threshold every 10 seconds to slide the window forward
+                delay(10000)
+            }
+        },
+        _sensorType
+    ) { threshold, type ->
+        threshold to type
+    }.flatMapLatest { (threshold, type) ->
+        repository.getReadingsPast24Hours(type, threshold)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -83,14 +91,19 @@ class CpuTempViewModel(application: Application) : AndroidViewModel(application)
 
     private suspend fun triggerReading() {
         val context = getApplication<Application>().applicationContext
-        val result = CpuTempReader.readCpuTemperature(context, _demoModeEnabled.value)
+        val result = if (_sensorType.value == "battery") {
+            CpuTempReader.readBatteryTemperature(context, _demoModeEnabled.value)
+        } else {
+            CpuTempReader.readCpuTemperature(context, _demoModeEnabled.value)
+        }
         _currentReading.value = result
 
         // Save to Room database
         repository.insertReading(
             TemperatureReading(
                 temperature = result.temp,
-                source = result.source
+                source = result.source,
+                sensorType = _sensorType.value
             )
         )
 
@@ -109,6 +122,15 @@ class CpuTempViewModel(application: Application) : AndroidViewModel(application)
         prefsManager.demoModeEnabled = enabled
         _demoModeEnabled.value = enabled
         // Trigger immediate check to reflect changes
+        viewModelScope.launch {
+            triggerReading()
+        }
+    }
+
+    fun setSensorType(type: String) {
+        prefsManager.sensorType = type
+        _sensorType.value = type
+        // Immediately trigger a reading to update the dashboard instantly with correct sensor info
         viewModelScope.launch {
             triggerReading()
         }
